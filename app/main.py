@@ -9,3 +9,14 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="HNG Internship Backend Stage 1")
 
 app.include_router(strings.router)
+
+@app.get("/")
+def root():
+    return {"message": "Welcome to String Analyzer Service!"}
+
+@app.on_event("startup")
+def init_db():
+    from app.database import Base, engine
+    import app.models
+    Base.metadata.create_all(bind=engine)
+    
