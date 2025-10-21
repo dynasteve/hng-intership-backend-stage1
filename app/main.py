@@ -1,23 +1,17 @@
 from contextlib import asynccontextmanager
-from unittest.mock import Base
 from fastapi import FastAPI
-from .routes import strings
-from .database import engine
-from . import models
-
-# Ensure tables are created (for dev/demo). In prod use migrations (alembic).
-models.Base.metadata.create_all(bind=engine)
+from app.routes import strings
+from app.database import Base, engine
+import app.models  # import all models so Base.metadata is populated
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup code
+    # Startup code: create tables if they don't exist
     Base.metadata.create_all(bind=engine)
     yield
     # Shutdown code (optional)
-    # e.g., closing resources
 
-app = FastAPI(title="HNG Internship Backend Stage 1", lifespan=lifespan)
-
+app = FastAPI(title="String Analyzer Service", lifespan=lifespan)
 app.include_router(strings.router)
 
 @app.get("/")
